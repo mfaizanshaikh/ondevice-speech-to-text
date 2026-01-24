@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1"/>
+      <stop offset="100%" style="stop-color:#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="micGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#E0E7FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect x="32" y="32" width="960" height="960" rx="220" ry="220" fill="url(#bgGradient)" filter="url(#shadow)"/>
+
+  <!-- Inner subtle highlight -->
+  <rect x="48" y="48" width="928" height="464" rx="210" ry="210" fill="white" fill-opacity="0.1"/>
+
+  <!-- Microphone body -->
+  <rect x="412" y="220" width="200" height="320" rx="100" ry="100" fill="url(#micGradient)"/>
+
+  <!-- Microphone grille lines -->
+  <line x1="452" y1="300" x2="572" y2="300" stroke="#C7D2FE" stroke-width="8" stroke-linecap="round"/>
+  <line x1="452" y1="350" x2="572" y2="350" stroke="#C7D2FE" stroke-width="8" stroke-linecap="round"/>
+  <line x1="452" y1="400" x2="572" y2="400" stroke="#C7D2FE" stroke-width="8" stroke-linecap="round"/>
+  <line x1="452" y1="450" x2="572" y2="450" stroke="#C7D2FE" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Microphone stand arc -->
+  <path d="M312 460 Q312 620 512 620 Q712 620 712 460" fill="none" stroke="white" stroke-width="40" stroke-linecap="round"/>
+
+  <!-- Microphone stand vertical -->
+  <line x1="512" y1="620" x2="512" y2="720" stroke="white" stroke-width="40" stroke-linecap="round"/>
+
+  <!-- Sound waves / text transformation lines (right side) -->
+  <g opacity="0.9">
+    <!-- Wave 1 becoming text line -->
+    <path d="M650 300 Q680 280 710 300 Q740 320 770 300 L850 300" fill="none" stroke="white" stroke-width="24" stroke-linecap="round"/>
+
+    <!-- Wave 2 becoming text line -->
+    <path d="M680 380 Q710 360 740 380 L850 380" fill="none" stroke="white" stroke-width="24" stroke-linecap="round"/>
+
+    <!-- Wave 3 becoming text line -->
+    <path d="M650 460 Q680 440 710 460 Q740 480 770 460 L820 460" fill="none" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  </g>
+
+  <!-- Small decorative dots -->
+  <circle cx="880" cy="300" r="16" fill="white" opacity="0.6"/>
+  <circle cx="880" cy="380" r="16" fill="white" opacity="0.6"/>
+  <circle cx="850" cy="460" r="16" fill="white" opacity="0.6"/>
+</svg>
