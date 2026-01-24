@@ -6,6 +6,23 @@ import Carbon.HIToolbox
 class TextInsertionService {
     static let shared = TextInsertionService()
 
+    /// Apps known to not properly support accessibility text insertion (mostly Electron apps)
+    private let pasteboardOnlyApps: Set<String> = [
+        "WhatsApp",
+        "Slack",
+        "Discord",
+        "Microsoft Teams",
+        "Notion",
+        "Figma",
+        "Visual Studio Code",
+        "Code",
+        "Cursor",
+        "Telegram",
+        "Messenger",
+        "Signal",
+        "Spotify"
+    ]
+
     private init() {}
 
     func insertText(_ text: String) async -> Bool {
@@ -13,6 +30,14 @@ class TextInsertionService {
 
         print("[TextInsertion] Attempting to insert text: \"\(text)\"")
         print("[TextInsertion] Accessibility trusted: \(AXIsProcessTrusted())")
+
+        // Check if we should skip accessibility and go straight to pasteboard
+        if let appName = getFocusedAppName(), pasteboardOnlyApps.contains(appName) {
+            print("[TextInsertion] App '\(appName)' requires pasteboard method, skipping accessibility")
+            let result = await insertViaPasteboard(text)
+            print("[TextInsertion] Pasteboard result: \(result)")
+            return result
+        }
 
         if await insertViaAccessibility(text) {
             print("[TextInsertion] Successfully inserted via accessibility")
@@ -23,6 +48,21 @@ class TextInsertionService {
         let result = await insertViaPasteboard(text)
         print("[TextInsertion] Pasteboard fallback result: \(result)")
         return result
+    }
+
+    private func getFocusedAppName() -> String? {
+        let systemWide = AXUIElementCreateSystemWide()
+        var focusedApp: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedApplicationAttribute as CFString, &focusedApp) == .success,
+              let app = focusedApp else {
+            return nil
+        }
+
+        var appTitle: CFTypeRef?
+        if AXUIElementCopyAttributeValue(app as! AXUIElement, kAXTitleAttribute as CFString, &appTitle) == .success {
+            return appTitle as? String
+        }
+        return nil
     }
 
     private func insertViaAccessibility(_ text: String) async -> Bool {

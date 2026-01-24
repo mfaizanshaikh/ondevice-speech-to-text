@@ -19,14 +19,21 @@ class WhisperManager: ObservableObject {
     private let sampleRate: Double = 16000
     private let bufferSize: AVAudioFrameCount = 1024
 
+    private let maxRetries = 5
+    private let retryDelays: [UInt64] = [5, 15, 30, 60, 120] // seconds
+
     private init() {}
 
     func loadModel(_ model: String = Constants.WhisperModel.defaultModel) async {
         guard !modelState.isLoading else { return }
 
+        await loadModelWithRetry(model, attempt: 0)
+    }
+
+    private func loadModelWithRetry(_ model: String, attempt: Int) async {
         modelState = .downloading(progress: 0.0)
         AppState.shared.modelState = .downloading(progress: 0.0)
-        print("Loading WhisperKit model: \(model)")
+        print("Loading WhisperKit model: \(model) (attempt \(attempt + 1)/\(maxRetries + 1))")
 
         do {
             // Use Application Support for persistent model storage
@@ -54,8 +61,31 @@ class WhisperManager: ObservableObject {
             print("WhisperKit model loaded successfully")
         } catch {
             print("WhisperKit model loading failed: \(error)")
-            modelState = .error(error.localizedDescription)
-            AppState.shared.modelState = .error(error.localizedDescription)
+
+            // Check if this is a network-related error and we should retry
+            let errorString = error.localizedDescription.lowercased()
+            let isNetworkError = errorString.contains("offline") ||
+                                 errorString.contains("network") ||
+                                 errorString.contains("internet") ||
+                                 errorString.contains("connection") ||
+                                 errorString.contains("timed out") ||
+                                 errorString.contains("could not connect")
+
+            if isNetworkError && attempt < maxRetries {
+                let delaySeconds = retryDelays[min(attempt, retryDelays.count - 1)]
+                print("Network error detected. Retrying in \(delaySeconds) seconds...")
+
+                modelState = .error("Network unavailable. Retrying in \(delaySeconds)s...")
+                AppState.shared.modelState = .error("Network unavailable. Retrying in \(delaySeconds)s...")
+
+                try? await Task.sleep(nanoseconds: delaySeconds * 1_000_000_000)
+
+                // Retry
+                await loadModelWithRetry(model, attempt: attempt + 1)
+            } else {
+                modelState = .error(error.localizedDescription)
+                AppState.shared.modelState = .error(error.localizedDescription)
+            }
         }
     }
 

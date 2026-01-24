@@ -87,7 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hostingView = NSHostingView(rootView: unsupportedView)
 
         unsupportedArchWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 450, height: 350),
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 320),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -112,26 +112,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 struct UnsupportedArchitectureView: View {
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 64))
                 .foregroundColor(.orange)
 
-            Text("Apple Silicon Required")
+            Text("Incompatible Mac")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("SpeechToText uses WhisperKit, which requires an Apple Silicon Mac (M1, M2, M3, or M4 chip).")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            VStack(spacing: 12) {
+                Text("SpeechToText requires an Apple Silicon Mac (M1/M2/M3/M4).")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
-            Text("Your Mac has an Intel processor, which is not supported by WhisperKit's on-device AI engine.")
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                Text("Your Mac has an Intel processor. WhisperKit's on-device speech recognition only runs on Apple Silicon.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 20)
 
             Spacer()
 
@@ -142,7 +145,7 @@ struct UnsupportedArchitectureView: View {
             .controlSize(.large)
         }
         .padding(30)
-        .frame(width: 450, height: 350)
+        .frame(width: 420, height: 320)
     }
 }
 
