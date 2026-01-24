@@ -5,6 +5,7 @@ struct TranscriptionOverlayView: View {
     @ObservedObject private var whisperManager = WhisperManager.shared
     @State private var elapsedSeconds: Int = 0
     @State private var timer: Timer?
+    @State private var isVisible: Bool = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -17,11 +18,18 @@ struct TranscriptionOverlayView: View {
         .padding(16)
         .frame(width: Constants.UI.overlayWidth, height: Constants.UI.overlayHeight)
         .background(backgroundView)
+        .scaleEffect(isVisible ? 1.0 : 0.9)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .animation(.spring(duration: 0.25, bounce: 0.2), value: isVisible)
         .onAppear {
             startTimer()
+            withAnimation {
+                isVisible = true
+            }
         }
         .onDisappear {
             stopTimer()
+            isVisible = false
         }
         .onChange(of: appState.recordingState) { _, newState in
             if newState == .recording {
