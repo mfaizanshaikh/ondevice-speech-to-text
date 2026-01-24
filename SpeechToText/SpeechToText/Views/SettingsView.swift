@@ -9,6 +9,15 @@ struct SettingsView: View {
 
     @State private var selectedTab = 0
 
+    // Languages sorted alphabetically with Auto-detect first
+    private var sortedLanguages: [(code: String, name: String)] {
+        Constants.Language.availableLanguages.sorted { first, second in
+            if first.code == "auto" { return true }
+            if second.code == "auto" { return false }
+            return first.name < second.name
+        }
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             generalTab
@@ -59,7 +68,7 @@ struct SettingsView: View {
 
             Section("Language") {
                 Picker("Transcription Language:", selection: $appState.selectedLanguage) {
-                    ForEach(Constants.Language.availableLanguages, id: \.code) { language in
+                    ForEach(sortedLanguages, id: \.code) { language in
                         Text(language.name).tag(language.code)
                     }
                 }
