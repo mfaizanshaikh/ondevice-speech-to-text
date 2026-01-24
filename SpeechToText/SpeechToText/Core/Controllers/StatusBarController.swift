@@ -125,6 +125,14 @@ class StatusBarController: ObservableObject {
         }
     }
 
+    func cancelRecording() {
+        whisperManager.cancelRecording()
+        hideOverlay()
+        appState.recordingState = .idle
+        appState.currentTranscription = ""
+        updateStatusIcon()
+    }
+
     private func startRecording() async {
         guard appState.modelState.isReady else {
             print("Model not ready: \(appState.modelState)")
@@ -197,12 +205,16 @@ class StatusBarController: ObservableObject {
             let overlayView = TranscriptionOverlayView()
             let hostingView = NSHostingView(rootView: overlayView)
 
-            overlayWindow = NSWindow(
+            // Use NSPanel with nonactivatingPanel to prevent stealing focus
+            let panel = NSPanel(
                 contentRect: NSRect(x: 0, y: 0, width: Constants.UI.overlayWidth, height: Constants.UI.overlayHeight),
-                styleMask: [.borderless],
+                styleMask: [.borderless, .nonactivatingPanel],
                 backing: .buffered,
                 defer: false
             )
+            panel.becomesKeyOnlyIfNeeded = true
+            panel.hidesOnDeactivate = false
+            overlayWindow = panel
 
             overlayWindow?.contentView = hostingView
             overlayWindow?.isOpaque = false

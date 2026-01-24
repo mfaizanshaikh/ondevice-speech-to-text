@@ -2,19 +2,22 @@ import SwiftUI
 
 struct AudioLevelView: View {
     let audioLevel: Float
-    private let barCount: Int = 7
+    private let barCount: Int = 40
 
     var body: some View {
-        HStack(spacing: 3) {
-            ForEach(0..<barCount, id: \.self) { index in
-                AudioBar(
-                    audioLevel: audioLevel,
-                    barIndex: index,
-                    totalBars: barCount
-                )
+        GeometryReader { geometry in
+            HStack(spacing: 2) {
+                ForEach(0..<barCount, id: \.self) { index in
+                    AudioBar(
+                        audioLevel: audioLevel,
+                        barIndex: index,
+                        totalBars: barCount
+                    )
+                    .frame(width: (geometry.size.width - CGFloat(barCount - 1) * 2) / CGFloat(barCount))
+                }
             }
         }
-        .frame(height: 28)
+        .frame(height: 32)
     }
 }
 
@@ -23,32 +26,31 @@ struct AudioBar: View {
     let barIndex: Int
     let totalBars: Int
 
-    @State private var displayHeight: CGFloat = 0.2
+    @State private var displayHeight: CGFloat = 0.15
 
     private var targetHeight: CGFloat {
-        // Each bar responds at a different threshold for a wave effect
-        let threshold = Float(barIndex) / Float(totalBars)
-        let excess = max(0, audioLevel - threshold * 0.3)
-        // Add some variation based on bar position for organic feel
-        let variation = Float(sin(Double(barIndex) * 0.8 + Double(audioLevel) * 10) * 0.15)
-        return CGFloat(min(1.0, excess * 2.5 + variation + 0.2))
+        // Create a wave pattern that responds to audio level
+        let centerDistance = abs(Float(barIndex) - Float(totalBars) / 2) / Float(totalBars) * 2
+        let wavePhase = sin(Double(barIndex) * 0.5 + Double(audioLevel) * 15) * 0.3
+        let baseLevel = max(0, audioLevel - centerDistance * 0.3)
+        return CGFloat(min(1.0, baseLevel * 1.8 + Float(wavePhase) * audioLevel + 0.15))
     }
 
     private var barColor: Color {
         let intensity = displayHeight
-        if intensity > 0.7 {
+        if intensity > 0.75 {
             return .orange
-        } else if intensity > 0.4 {
+        } else if intensity > 0.5 {
             return .green
         } else {
-            return .green.opacity(0.7)
+            return .green.opacity(0.6)
         }
     }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 2)
+        RoundedRectangle(cornerRadius: 1.5)
             .fill(barColor)
-            .frame(width: 4, height: 6 + displayHeight * 22)
+            .frame(height: 4 + displayHeight * 28)
             .animation(.easeOut(duration: 0.08), value: displayHeight)
             .onChange(of: audioLevel) { _, _ in
                 displayHeight = targetHeight
@@ -61,33 +63,22 @@ struct AudioBar: View {
 
 #Preview {
     VStack(spacing: 20) {
-        HStack {
-            Text("Silent")
-            Spacer()
-            AudioLevelView(audioLevel: 0)
-        }
-        HStack {
-            Text("Low")
-            Spacer()
-            AudioLevelView(audioLevel: 0.2)
-        }
-        HStack {
-            Text("Medium")
-            Spacer()
-            AudioLevelView(audioLevel: 0.5)
-        }
-        HStack {
-            Text("Loud")
-            Spacer()
-            AudioLevelView(audioLevel: 0.8)
-        }
-        HStack {
-            Text("Max")
-            Spacer()
-            AudioLevelView(audioLevel: 1.0)
-        }
+        Text("Silent")
+        AudioLevelView(audioLevel: 0)
+
+        Text("Low")
+        AudioLevelView(audioLevel: 0.2)
+
+        Text("Medium")
+        AudioLevelView(audioLevel: 0.5)
+
+        Text("Loud")
+        AudioLevelView(audioLevel: 0.8)
+
+        Text("Max")
+        AudioLevelView(audioLevel: 1.0)
     }
     .padding()
-    .frame(width: 200)
+    .frame(width: 380)
     .background(Color.black.opacity(0.8))
 }
