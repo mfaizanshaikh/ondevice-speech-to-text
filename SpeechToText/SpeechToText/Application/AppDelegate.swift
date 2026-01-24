@@ -7,9 +7,27 @@ private let logger = Logger(subsystem: "com.speechtotext.app", category: "AppDel
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
+    private var unsupportedArchWindow: NSWindow?
+
+    /// Returns true if running on Intel (x86_64) Mac
+    private var isAppleSilicon: Bool {
+        #if arch(arm64)
+        return true
+        #else
+        return false
+        #endif
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         logger.info("applicationDidFinishLaunching called")
+
+        // Check architecture before proceeding
+        guard isAppleSilicon else {
+            logger.error("Unsupported architecture: Intel Mac detected")
+            showUnsupportedArchitectureWindow()
+            return
+        }
+
         setupApp()
     }
 
@@ -62,6 +80,69 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         onboardingWindow?.center()
         onboardingWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func showUnsupportedArchitectureWindow() {
+        let unsupportedView = UnsupportedArchitectureView()
+        let hostingView = NSHostingView(rootView: unsupportedView)
+
+        unsupportedArchWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 450, height: 350),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+
+        unsupportedArchWindow?.contentView = hostingView
+        unsupportedArchWindow?.title = "SpeechToText"
+        unsupportedArchWindow?.center()
+        unsupportedArchWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        // Quit app when window is closed
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: unsupportedArchWindow,
+            queue: .main
+        ) { _ in
+            NSApp.terminate(nil)
+        }
+    }
+}
+
+struct UnsupportedArchitectureView: View {
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 64))
+                .foregroundColor(.orange)
+
+            Text("Apple Silicon Required")
+                .font(.title)
+                .fontWeight(.bold)
+
+            Text("SpeechToText uses WhisperKit, which requires an Apple Silicon Mac (M1, M2, M3, or M4 chip).")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Text("Your Mac has an Intel processor, which is not supported by WhisperKit's on-device AI engine.")
+                .font(.callout)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Spacer()
+
+            Button("Quit") {
+                NSApp.terminate(nil)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+        .padding(30)
+        .frame(width: 450, height: 350)
     }
 }
 
