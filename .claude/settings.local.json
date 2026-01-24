@@ -11,7 +11,8 @@
       "Bash(/bin/bash -c 'grep -E \"\"\\(productType|PRODUCT_NAME|WRAPPER_EXTENSION\\)\"\" /Users/faizan/Documents/Personal/Projects/UniveralSTT/SpeechToText/SpeechToText.xcodeproj/project.pbxproj | head -20')",
       "Bash(tree:*)",
       "Bash(swift build:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(codesign:*)"
     ]
   }
 }

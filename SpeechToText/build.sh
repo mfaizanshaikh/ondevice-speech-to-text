@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build script for SpeechToText - Personal Use
-# Creates a release .app bundle without code signing
+# Creates a release .app bundle with adhoc signing and proper entitlements
 
 set -e
 
@@ -10,6 +10,7 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_NAME="SpeechToText"
 BUILD_DIR="$PROJECT_DIR/build"
 APP_NAME="$PROJECT_NAME.app"
+ENTITLEMENTS="$PROJECT_DIR/$PROJECT_NAME/$PROJECT_NAME.entitlements"
 
 # Colors for output
 RED='\033[0;31m'
@@ -34,8 +35,8 @@ xcodebuild -project "$PROJECT_DIR/$PROJECT_NAME.xcodeproj" \
     -configuration Release \
     -derivedDataPath "$BUILD_DIR/DerivedData" \
     CODE_SIGN_IDENTITY="-" \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGNING_ALLOWED=NO \
+    CODE_SIGNING_REQUIRED=YES \
+    CODE_SIGNING_ALLOWED=YES \
     ONLY_ACTIVE_ARCH=NO \
     build
 
@@ -49,6 +50,20 @@ fi
 
 # Copy to build directory
 cp -R "$BUILT_APP" "$BUILD_DIR/$APP_NAME"
+
+# Re-sign the app with entitlements for proper permission handling
+echo -e "${YELLOW}Signing app with entitlements...${NC}"
+if [ -f "$ENTITLEMENTS" ]; then
+    codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" "$BUILD_DIR/$APP_NAME"
+    echo -e "${GREEN}App signed with entitlements${NC}"
+
+    # Verify the signature
+    echo -e "${YELLOW}Verifying signature...${NC}"
+    codesign -dv --entitlements - "$BUILD_DIR/$APP_NAME" 2>&1 | head -20
+else
+    echo -e "${RED}Warning: Entitlements file not found at $ENTITLEMENTS${NC}"
+    echo -e "${RED}App will not have proper microphone/accessibility permissions${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}========================================"
@@ -75,6 +90,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     fi
     cp -R "$BUILD_DIR/$APP_NAME" /Applications/
     echo -e "${GREEN}Installed to /Applications/$APP_NAME${NC}"
+    echo ""
+    echo -e "${YELLOW}IMPORTANT: If you previously granted permissions to an older build:${NC}"
+    echo "  1. Open System Settings > Privacy & Security > Microphone"
+    echo "  2. Remove SpeechToText from the list (click -, then remove)"
+    echo "  3. Do the same for Accessibility"
+    echo "  4. Launch the app and grant permissions again"
     echo ""
     echo "You can now launch it from Spotlight or run:"
     echo "  open /Applications/$APP_NAME"
