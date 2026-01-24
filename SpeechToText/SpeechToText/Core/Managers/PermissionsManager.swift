@@ -21,7 +21,8 @@ class PermissionsManager: ObservableObject {
     }
 
     private init() {
-        checkAllPermissions()
+        // Don't check permissions in init to avoid triggering audio access too early
+        // Permissions will be checked when checkAllPermissions() is called explicitly
     }
 
     func checkAllPermissions() {

@@ -66,17 +66,20 @@ class StatusBarController: ObservableObject {
         menu?.addItem(NSMenuItem.separator())
 
         let recordItem = NSMenuItem(title: "Start Recording", action: #selector(toggleRecording), keyEquivalent: "")
+        recordItem.target = self
         recordItem.tag = 101
         menu?.addItem(recordItem)
 
         menu?.addItem(NSMenuItem.separator())
 
         let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
         menu?.addItem(settingsItem)
 
         menu?.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(title: "Quit SpeechToText", action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
         menu?.addItem(quitItem)
     }
 
@@ -156,11 +159,17 @@ class StatusBarController: ObservableObject {
 
         hideOverlay()
 
+        print("[StatusBarController] Transcription result: '\(result.text)', isEmpty: \(result.isEmpty)")
+
         if !result.isEmpty {
+            print("[StatusBarController] Attempting to insert text...")
             let inserted = await textInsertionService.insertText(result.text)
+            print("[StatusBarController] Text insertion result: \(inserted)")
             if !inserted {
                 showNotification(title: "Text Copied", body: "Text has been copied to clipboard. Paste with Cmd+V.")
             }
+        } else {
+            print("[StatusBarController] Empty transcription, nothing to insert")
         }
 
         appState.recordingState = .idle
