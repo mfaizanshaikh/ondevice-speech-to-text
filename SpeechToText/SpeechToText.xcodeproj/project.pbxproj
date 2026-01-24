@@ -22,6 +22,7 @@
 		A1000013001 /* AXUIElement+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000013000 /* AXUIElement+Helpers.swift */; };
 		A1000014001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000014000 /* Constants.swift */; };
 		A1000015001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000015000 /* Assets.xcassets */; };
+		A1000017001 /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000017000 /* AudioLevelView.swift */; };
 		B387012F2F2341B10018C319 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B387012E2F2341B10018C319 /* main.swift */; };
 		B3B4081F2F22BF9000A0727D /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = B3B4081E2F22BF9000A0727D /* WhisperKit */; };
 		B3B408222F22BFBD00A0727D /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = B3B408212F22BFBD00A0727D /* HotKey */; };
@@ -46,6 +47,7 @@
 		A1000014000 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		A1000015000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1000016000 /* SpeechToText.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpeechToText.entitlements; sourceTree = "<group>"; };
+		A1000017000 /* AudioLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelView.swift; sourceTree = "<group>"; };
 		B387012E2F2341B10018C319 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -147,6 +149,7 @@
 				A1000010000 /* TranscriptionOverlayView.swift */,
 				A1000011000 /* SettingsView.swift */,
 				A1000012000 /* ModelDownloadView.swift */,
+				A1000017000 /* AudioLevelView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -259,6 +262,7 @@
 				A1000009001 /* StatusBarMenu.swift in Sources */,
 				A1000010001 /* TranscriptionOverlayView.swift in Sources */,
 				A1000011001 /* SettingsView.swift in Sources */,
+				A1000017001 /* AudioLevelView.swift in Sources */,
 				B387012F2F2341B10018C319 /* main.swift in Sources */,
 				A1000012001 /* ModelDownloadView.swift in Sources */,
 				A1000013001 /* AXUIElement+Helpers.swift in Sources */,

@@ -9,6 +9,7 @@ class WhisperManager: ObservableObject {
     @Published var isRecording = false
     @Published var currentTranscription = ""
     @Published var modelState: ModelState = .notLoaded
+    @Published var audioLevel: Float = 0
 
     private var whisperKit: WhisperKit?
     private var audioEngine: AVAudioEngine?
@@ -186,6 +187,16 @@ class WhisperManager: ObservableObject {
                 self.audioBufferLock.lock()
                 self.audioBuffers.append(contentsOf: samples)
                 self.audioBufferLock.unlock()
+
+                // Calculate RMS audio level for visualization
+                let sumOfSquares = samples.reduce(0) { $0 + $1 * $1 }
+                let rms = sqrt(sumOfSquares / Float(samples.count))
+                // Normalize to 0-1 range (typical speech is around 0.01-0.1 RMS)
+                let normalizedLevel = min(1.0, rms * 10)
+
+                DispatchQueue.main.async {
+                    self.audioLevel = normalizedLevel
+                }
             }
         }
 
@@ -220,6 +231,7 @@ class WhisperManager: ObservableObject {
         audioEngine?.stop()
         audioEngine = nil
         isRecording = false
+        audioLevel = 0
 
         // Small delay to ensure all buffered audio samples are processed
         try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
@@ -306,6 +318,7 @@ class WhisperManager: ObservableObject {
         audioEngine?.stop()
         audioEngine = nil
         isRecording = false
+        audioLevel = 0
         audioBufferLock.lock()
         audioBuffers.removeAll()
         audioBufferLock.unlock()

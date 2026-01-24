@@ -58,13 +58,28 @@ struct TranscriptionOverlayView: View {
 
     private var transcriptionView: some View {
         ScrollView {
-            Text(displayText)
-                .font(.body)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .multilineTextAlignment(.leading)
+            if appState.currentTranscription.isEmpty && appState.recordingState == .recording {
+                audioVisualizationView
+            } else {
+                Text(displayText)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+            }
         }
         .frame(maxHeight: .infinity)
+    }
+
+    private var audioVisualizationView: some View {
+        HStack(spacing: 12) {
+            AudioLevelView(audioLevel: whisperManager.audioLevel)
+            Text("Listening...")
+                .font(.body)
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var footerView: some View {

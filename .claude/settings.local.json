@@ -12,7 +12,9 @@
       "Bash(tree:*)",
       "Bash(swift build:*)",
       "Bash(chmod:*)",
-      "Bash(codesign:*)"
+      "Bash(codesign:*)",
+      "Bash(./build.sh:*)",
+      "Bash(find:*)"
     ]
   }
 }
