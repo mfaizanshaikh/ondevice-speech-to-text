@@ -2,6 +2,10 @@
 
 A macOS menu bar application that provides universal, on-device speech-to-text transcription powered by [OpenAI Whisper](https://github.com/openai/whisper). Transcribe speech in any application with a global hotkey, all processing happens locally on your Mac with zero data sent to the cloud.
 
+## Demo
+
+[![Demo Video](https://img.youtube.com/vi/OUA0MoNb3do/0.jpg)](https://youtu.be/OUA0MoNb3do)
+
 ## Features
 
 - **100% Offline** - All transcription happens on-device using Apple's Neural Engine
