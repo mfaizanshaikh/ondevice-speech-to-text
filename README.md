@@ -9,24 +9,15 @@ A macOS menu bar application that provides universal, on-device speech-to-text t
 - **Global Hotkey** - Start/stop recording from anywhere with Cmd+Shift+Space
 - **Multiple Whisper Models** - Choose from tiny, base, small, or large-v3 based on your accuracy/speed needs
 - **99 Languages Supported** - Transcribe speech in virtually any language
-- **Minimal & Native** - Runs quietly in your menu bar with a native macOS UI
 
 ## Requirements
 
 - **macOS 14 (Sonoma)** or later
 - **Apple Silicon Mac** (M1, M2, M3, or M4)
-- RAM requirements depend on model size:
-  - Tiny/Base: 4GB minimum
-  - Small: 8GB minimum
-  - Large-v3: 16GB recommended
 
 > **Note:** Intel Macs are not supported due to WhisperKit's reliance on Apple's Neural Engine for optimal performance.
 
 ## Installation
-
-### Download Release
-
-Download the latest release from the [Releases](../../releases) page.
 
 ### Build from Source
 
@@ -43,37 +34,6 @@ swift run SpeechToText
 ```
 
 Or open `SpeechToText.xcodeproj` in Xcode and build directly.
-
-## Usage
-
-### First Launch
-
-1. **Welcome** - Launch the app and complete the onboarding wizard
-2. **Permissions** - Grant microphone access and accessibility permissions
-3. **Model Download** - Select and download a Whisper model (large-v3 recommended for best accuracy)
-
-### Recording
-
-1. Press **Cmd+Shift+Space** to start recording
-2. Speak your text
-3. Press the hotkey again (or click the checkmark) to stop and transcribe
-4. Text is automatically inserted at your cursor position
-
-### Menu Bar
-
-- **Left-click** the menu bar icon to toggle recording
-- **Right-click** to access settings and quit
-
-## Settings
-
-Access settings via right-click menu or **Cmd+,**:
-
-| Tab | Options |
-|-----|---------|
-| **General** | Hotkey configuration, language selection, launch at login |
-| **Model** | Download/switch Whisper models, view model status |
-| **Permissions** | Manage microphone and accessibility permissions |
-| **About** | App version and information |
 
 ## Whisper Models
 
@@ -130,25 +90,9 @@ SpeechToText/
 ### Key Components
 
 - **StatusBarController** - Manages menu bar icon, recording lifecycle, and UI windows
-- **WhisperManager** - Handles audio capture (16kHz, PCM Float32) and WhisperKit transcription
+- **WhisperManager** - Handles audio capture and WhisperKit transcription
 - **TextInsertionService** - Inserts text via Accessibility API with clipboard fallback
-- **HotkeyManager** - Global hotkey registration using Carbon events
-
-## Permissions
-
-The app requires the following permissions:
-
-| Permission | Purpose |
-|------------|---------|
-| **Microphone** | Capture audio for transcription |
-| **Accessibility** | Insert text at cursor position in any application |
-
-If accessibility permission is denied, the app falls back to copying text to clipboard and simulating Cmd+V.
-
-## Dependencies
-
-- [WhisperKit](https://github.com/argmaxinc/WhisperKit) (0.9.0+) - On-device Whisper speech recognition
-- [HotKey](https://github.com/soffes/HotKey) (0.2.0+) - Global keyboard shortcut registration
+- **HotkeyManager** - Global hotkey registration
 
 ## License
 
