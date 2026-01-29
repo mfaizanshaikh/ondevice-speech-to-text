@@ -2,7 +2,7 @@ import Cocoa
 import SwiftUI
 import os.log
 
-private let logger = Logger(subsystem: "com.speechtotext.app", category: "AppDelegate")
+private let logger = Logger(subsystem: "com.mfaizanshaikh.speechtotext", category: "AppDelegate")
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {

@@ -5,7 +5,7 @@ import Carbon.HIToolbox
 enum Constants {
     enum App {
         static let name = "SpeechToText"
-        static let bundleIdentifier = "com.speechtotext.app"
+        static let bundleIdentifier = "com.mfaizanshaikh.speechtotext"
     }
 
     enum Hotkey {
