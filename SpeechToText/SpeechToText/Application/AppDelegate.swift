@@ -76,7 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         onboardingWindow?.contentView = hostingView
-        onboardingWindow?.title = "Welcome to SpeechToText"
+        onboardingWindow?.title = "Welcome to Offline Speech to Text"
         onboardingWindow?.center()
         onboardingWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -94,7 +94,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         unsupportedArchWindow?.contentView = hostingView
-        unsupportedArchWindow?.title = "SpeechToText"
+        unsupportedArchWindow?.title = "Offline Speech to Text"
         unsupportedArchWindow?.center()
         unsupportedArchWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -122,7 +122,7 @@ struct UnsupportedArchitectureView: View {
                 .fontWeight(.bold)
 
             VStack(spacing: 12) {
-                Text("SpeechToText requires an Apple Silicon Mac (M1/M2/M3/M4).")
+                Text("Offline Speech to Text requires an Apple Silicon Mac (M1/M2/M3/M4).")
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -207,7 +207,7 @@ struct OnboardingView: View {
                 .font(.system(size: 72))
                 .foregroundColor(.accentColor)
 
-            Text("Welcome to SpeechToText")
+            Text("Welcome to Offline Speech to Text")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
@@ -236,7 +236,7 @@ struct OnboardingView: View {
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("SpeechToText needs a few permissions to work properly.")
+            Text("Offline Speech to Text needs a few permissions to work properly.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

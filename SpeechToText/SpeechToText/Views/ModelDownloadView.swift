@@ -30,7 +30,7 @@ struct ModelDownloadView: View {
                 .font(.title2)
                 .fontWeight(.bold)
 
-            Text("SpeechToText uses WhisperKit for high-accuracy, offline speech recognition.")
+            Text("Offline Speech to Text uses WhisperKit for high-accuracy, offline speech recognition.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

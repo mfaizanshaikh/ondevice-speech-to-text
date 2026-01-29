@@ -416,7 +416,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SpeechToText/Application/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SpeechToText needs microphone access to transcribe your speech into text using on-device AI processing.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Offline Speech to Text needs microphone access to transcribe your speech into text using on-device AI processing.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -448,7 +448,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SpeechToText/Application/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SpeechToText needs microphone access to transcribe your speech into text using on-device AI processing.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Offline Speech to Text needs microphone access to transcribe your speech into text using on-device AI processing.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

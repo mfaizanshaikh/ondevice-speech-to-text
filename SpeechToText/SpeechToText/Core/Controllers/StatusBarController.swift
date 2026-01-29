@@ -46,7 +46,7 @@ class StatusBarController: ObservableObject {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "mic", accessibilityDescription: "SpeechToText")
+            button.image = NSImage(systemSymbolName: "mic", accessibilityDescription: "Offline Speech to Text")
             button.image?.size = NSSize(width: Constants.UI.statusBarIconSize, height: Constants.UI.statusBarIconSize)
             button.action = #selector(statusBarButtonClicked)
             button.target = self
@@ -78,7 +78,7 @@ class StatusBarController: ObservableObject {
 
         menu?.addItem(NSMenuItem.separator())
 
-        let quitItem = NSMenuItem(title: "Quit SpeechToText", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit Offline Speech to Text", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu?.addItem(quitItem)
     }
@@ -188,7 +188,7 @@ class StatusBarController: ObservableObject {
         guard let button = statusItem?.button else { return }
 
         let iconName = appState.recordingState.iconName
-        button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "SpeechToText")
+        button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "Offline Speech to Text")
         button.image?.size = NSSize(width: Constants.UI.statusBarIconSize, height: Constants.UI.statusBarIconSize)
 
         if appState.isRecording {
@@ -253,7 +253,7 @@ class StatusBarController: ObservableObject {
             )
 
             settingsWindow?.contentView = hostingView
-            settingsWindow?.title = "SpeechToText Settings"
+            settingsWindow?.title = "Offline Speech to Text Settings"
             settingsWindow?.center()
             settingsWindow?.isReleasedWhenClosed = false
         }

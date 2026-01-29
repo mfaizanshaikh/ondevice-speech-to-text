@@ -1,4 +1,4 @@
-# On Device Speech To Text
+# Offline Speech to Text
 
 A macOS menu bar application that provides universal, on-device speech-to-text transcription powered by [OpenAI Whisper](https://github.com/openai/whisper). Transcribe speech in any application with a global hotkey, all processing happens locally on your Mac with zero data sent to the cloud.
 
@@ -48,7 +48,7 @@ Or open `SpeechToText.xcodeproj` in Xcode and build directly.
 | small | 466 MB | ~900 MB | Medium | Great |
 | large-v3 | 2.9 GB | ~4 GB | Slower | Best |
 
-Models are downloaded to `~/Library/Application Support/SpeechToText/Models/` and cached for future use.
+Models are downloaded to `~/Library/Application Support/Offline Speech to Text/Models/` and cached for future use.
 
 ## Supported Languages
 

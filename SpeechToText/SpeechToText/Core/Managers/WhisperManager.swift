@@ -39,7 +39,7 @@ class WhisperManager: ObservableObject {
         do {
             // Use Application Support for persistent model storage
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let downloadFolder = appSupport.appendingPathComponent("SpeechToText/Models")
+            let downloadFolder = appSupport.appendingPathComponent("Offline Speech to Text/Models")
 
             // Create directory if it doesn't exist
             try? FileManager.default.createDirectory(at: downloadFolder, withIntermediateDirectories: true)

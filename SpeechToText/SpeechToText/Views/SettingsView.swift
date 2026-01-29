@@ -179,7 +179,7 @@ struct SettingsView: View {
                 .font(.system(size: 64))
                 .foregroundColor(.accentColor)
 
-            Text("SpeechToText")
+            Text("Offline Speech to Text")
                 .font(.title)
                 .fontWeight(.bold)
 
@@ -205,6 +205,16 @@ struct SettingsView: View {
             .padding()
 
             Spacer()
+
+            VStack(spacing: 4) {
+                Text("Developed by Faizan Shaikh")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Text("\u{00A9} 2026 Faizan Shaikh. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
         }
         .padding()
     }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for SpeechToText - Personal Use
+# Build script for Offline Speech to Text - Personal Use
 # Creates a release .app bundle with adhoc signing and proper entitlements
 
 set -e
@@ -93,7 +93,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
     echo -e "${YELLOW}IMPORTANT: If you previously granted permissions to an older build:${NC}"
     echo "  1. Open System Settings > Privacy & Security > Microphone"
-    echo "  2. Remove SpeechToText from the list (click -, then remove)"
+    echo "  2. Remove Offline Speech to Text from the list (click -, then remove)"
     echo "  3. Do the same for Accessibility"
     echo "  4. Launch the app and grant permissions again"
     echo ""

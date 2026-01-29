@@ -31,7 +31,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>SpeechToText needs microphone access to transcribe your speech into text using on-device AI processing.</string>
+	<string>Offline Speech to Text needs microphone access to transcribe your speech into text using on-device AI processing.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

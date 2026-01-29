@@ -4,7 +4,7 @@ import Carbon.HIToolbox
 
 enum Constants {
     enum App {
-        static let name = "SpeechToText"
+        static let name = "Offline Speech to Text"
         static let bundleIdentifier = "com.mfaizanshaikh.speechtotext"
     }
 

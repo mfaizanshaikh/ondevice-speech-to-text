@@ -80,7 +80,7 @@ struct StatusBarMenu: View {
             }) {
                 HStack {
                     Image(systemName: "power")
-                    Text("Quit SpeechToText")
+                    Text("Quit Offline Speech to Text")
                     Spacer()
                     Text("\u{2318}Q")
                         .font(.caption)
