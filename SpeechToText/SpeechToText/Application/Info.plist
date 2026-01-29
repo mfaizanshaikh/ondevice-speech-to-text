@@ -11,9 +11,9 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>SpeechToText</string>
+    <string>Offline Speech to Text</string>
     <key>CFBundleDisplayName</key>
-    <string>SpeechToText</string>
+    <string>Offline Speech to Text</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
