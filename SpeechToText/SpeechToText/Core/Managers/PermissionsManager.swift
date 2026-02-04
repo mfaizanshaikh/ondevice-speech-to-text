@@ -7,7 +7,6 @@ class PermissionsManager: ObservableObject {
     static let shared = PermissionsManager()
 
     @Published var microphonePermission: PermissionStatus = .unknown
-    @Published var accessibilityPermission: PermissionStatus = .unknown
 
     enum PermissionStatus: Equatable {
         case unknown
@@ -27,7 +26,6 @@ class PermissionsManager: ObservableObject {
 
     func checkAllPermissions() {
         checkMicrophonePermission()
-        checkAccessibilityPermission()
     }
 
     func checkMicrophonePermission() {
@@ -56,48 +54,16 @@ class PermissionsManager: ObservableObject {
         return microphonePermission.isGranted
     }
 
-    func checkAccessibilityPermission() {
-        let trusted = AXIsProcessTrusted()
-        accessibilityPermission = trusted ? .granted : .denied
-    }
-
-    func requestAccessibilityPermission() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.checkAccessibilityPermission()
-        }
-    }
-
-    func openAccessibilityPreferences() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-        NSWorkspace.shared.open(url)
-    }
-
     func openMicrophonePreferences() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
         NSWorkspace.shared.open(url)
     }
 
     var allPermissionsGranted: Bool {
-        microphonePermission.isGranted && accessibilityPermission.isGranted
+        microphonePermission.isGranted
     }
 
     var permissionsSummary: String {
-        var items: [String] = []
-
-        if !microphonePermission.isGranted {
-            items.append("Microphone")
-        }
-        if !accessibilityPermission.isGranted {
-            items.append("Accessibility")
-        }
-
-        if items.isEmpty {
-            return "All permissions granted"
-        }
-
-        return "Missing: \(items.joined(separator: ", "))"
+        microphonePermission.isGranted ? "All permissions granted" : "Missing: Microphone"
     }
 }

@@ -40,6 +40,7 @@ enum Constants {
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let skippedModelDownload = "skippedModelDownload"
     }
 
     enum Language {

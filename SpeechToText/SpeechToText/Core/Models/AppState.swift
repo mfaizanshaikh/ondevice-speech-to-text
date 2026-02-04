@@ -89,6 +89,9 @@ class AppState: ObservableObject {
     @AppStorage(Constants.UserDefaults.hasCompletedOnboarding)
     var hasCompletedOnboarding: Bool = false
 
+    @AppStorage(Constants.UserDefaults.skippedModelDownload)
+    var skippedModelDownload: Bool = false
+
     var isRecording: Bool {
         recordingState == .recording
     }

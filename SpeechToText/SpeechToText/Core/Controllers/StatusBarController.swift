@@ -84,16 +84,10 @@ class StatusBarController: ObservableObject {
     }
 
     @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
-        guard let event = NSApp.currentEvent else { return }
-
-        if event.type == .rightMouseUp {
-            updateMenuItems()
-            statusItem?.menu = menu
-            statusItem?.button?.performClick(nil)
-            statusItem?.menu = nil
-        } else {
-            toggleRecording()
-        }
+        updateMenuItems()
+        statusItem?.menu = menu
+        statusItem?.button?.performClick(nil)
+        statusItem?.menu = nil
     }
 
     private func updateMenuItems() {
@@ -268,7 +262,7 @@ class StatusBarController: ObservableObject {
     }
 
     private func loadModelIfNeeded() async {
-        if !appState.modelState.isReady {
+        if !appState.modelState.isReady && !appState.skippedModelDownload {
             await whisperManager.loadModel(appState.selectedModel)
         }
     }

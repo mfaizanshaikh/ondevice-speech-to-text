@@ -109,6 +109,7 @@ struct SettingsView: View {
 
             Section {
                 Button(action: {
+                    appState.skippedModelDownload = false
                     Task {
                         await whisperManager.loadModel(appState.selectedModel)
                     }
@@ -153,14 +154,6 @@ struct SettingsView: View {
                         }
                     },
                     openSettings: permissionsManager.openMicrophonePreferences
-                )
-
-                permissionRow(
-                    title: "Accessibility",
-                    description: "Required to insert text at cursor position",
-                    isGranted: permissionsManager.accessibilityPermission.isGranted,
-                    action: permissionsManager.requestAccessibilityPermission,
-                    openSettings: permissionsManager.openAccessibilityPreferences
                 )
             }
 
@@ -269,7 +262,7 @@ struct SettingsView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                 } else {
-                    Button("Grant") {
+                    Button("Continue") {
                         action()
                     }
                     .buttonStyle(.borderedProminent)

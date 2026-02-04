@@ -232,11 +232,11 @@ struct OnboardingView: View {
                 .font(.system(size: 64))
                 .foregroundColor(.accentColor)
 
-            Text("Grant Permissions")
+            Text("Microphone Access")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Offline Speech to Text needs a few permissions to work properly.")
+            Text("Offline Speech to Text needs microphone access to work properly.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -251,13 +251,6 @@ struct OnboardingView: View {
                             await permissionsManager.requestMicrophonePermission()
                         }
                     }
-                )
-
-                permissionCard(
-                    title: "Accessibility",
-                    description: "To insert text at cursor position in any app",
-                    isGranted: permissionsManager.accessibilityPermission.isGranted,
-                    action: permissionsManager.requestAccessibilityPermission
                 )
             }
         }
@@ -327,7 +320,7 @@ struct OnboardingView: View {
                     .font(.title2)
                     .foregroundColor(.green)
             } else {
-                Button("Grant") {
+                Button("Continue") {
                     action()
                 }
                 .buttonStyle(.borderedProminent)

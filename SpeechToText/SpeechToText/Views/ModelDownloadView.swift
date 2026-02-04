@@ -105,6 +105,7 @@ struct ModelDownloadView: View {
         HStack(spacing: 16) {
             if whisperManager.modelState.isReady {
                 Button("Continue") {
+                    appState.skippedModelDownload = false
                     onComplete()
                 }
                 .buttonStyle(.borderedProminent)
@@ -116,6 +117,7 @@ struct ModelDownloadView: View {
                     .disabled(true)
             } else {
                 Button("Download Model") {
+                    appState.skippedModelDownload = false
                     Task {
                         await whisperManager.loadModel(appState.selectedModel)
                     }
@@ -124,6 +126,7 @@ struct ModelDownloadView: View {
                 .controlSize(.large)
 
                 Button("Skip for Now") {
+                    appState.skippedModelDownload = true
                     onComplete()
                 }
                 .buttonStyle(.bordered)

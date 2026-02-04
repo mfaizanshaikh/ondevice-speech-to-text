@@ -19,7 +19,6 @@
 		A1000010001 /* TranscriptionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000010000 /* TranscriptionOverlayView.swift */; };
 		A1000011001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000011000 /* SettingsView.swift */; };
 		A1000012001 /* ModelDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000012000 /* ModelDownloadView.swift */; };
-		A1000013001 /* AXUIElement+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000013000 /* AXUIElement+Helpers.swift */; };
 		A1000014001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000014000 /* Constants.swift */; };
 		A1000015001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000015000 /* Assets.xcassets */; };
 		A1000017001 /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000017000 /* AudioLevelView.swift */; };
@@ -43,7 +42,6 @@
 		A1000010000 /* TranscriptionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionOverlayView.swift; sourceTree = "<group>"; };
 		A1000011000 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A1000012000 /* ModelDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDownloadView.swift; sourceTree = "<group>"; };
-		A1000013000 /* AXUIElement+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AXUIElement+Helpers.swift"; sourceTree = "<group>"; };
 		A1000014000 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		A1000015000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1000016000 /* SpeechToText.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpeechToText.entitlements; sourceTree = "<group>"; };
@@ -78,7 +76,6 @@
 				A1GRP00010 /* Application */,
 				A1GRP00020 /* Core */,
 				A1GRP00030 /* Views */,
-				A1GRP00040 /* Extensions */,
 				A1GRP00050 /* Utilities */,
 				A1GRP00060 /* Resources */,
 				A1000016000 /* SpeechToText.entitlements */,
@@ -152,14 +149,6 @@
 				A1000017000 /* AudioLevelView.swift */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		A1GRP00040 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				A1000013000 /* AXUIElement+Helpers.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		A1GRP00050 /* Utilities */ = {
@@ -265,7 +254,6 @@
 				A1000017001 /* AudioLevelView.swift in Sources */,
 				B387012F2F2341B10018C319 /* main.swift in Sources */,
 				A1000012001 /* ModelDownloadView.swift in Sources */,
-				A1000013001 /* AXUIElement+Helpers.swift in Sources */,
 				A1000014001 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
