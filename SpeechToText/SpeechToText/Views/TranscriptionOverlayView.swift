@@ -18,6 +18,9 @@ struct TranscriptionOverlayView: View {
         .padding(16)
         .frame(width: Constants.UI.overlayWidth, height: Constants.UI.overlayHeight)
         .background(backgroundView)
+        .overlay {
+            clipboardToast
+        }
         .scaleEffect(isVisible ? 1.0 : 0.9)
         .opacity(isVisible ? 1.0 : 0.0)
         .animation(.spring(duration: 0.25, bounce: 0.2), value: isVisible)
@@ -119,10 +122,10 @@ struct TranscriptionOverlayView: View {
 
     private var transcriptionView: some View {
         ScrollView {
-            if appState.currentTranscription.isEmpty && appState.recordingState == .recording {
+            if appState.recordingState == .recording {
                 audioVisualizationView
             } else {
-                Text(displayText)
+                Text(statusText)
                     .font(.body)
                     .foregroundColor(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -179,11 +182,33 @@ struct TranscriptionOverlayView: View {
 
     private var backgroundView: some View {
         RoundedRectangle(cornerRadius: Constants.UI.overlayCornerRadius)
-            .fill(.ultraThinMaterial)
+            .fill(Color(NSColor.controlBackgroundColor))
             .overlay(
                 RoundedRectangle(cornerRadius: Constants.UI.overlayCornerRadius)
-                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                    .stroke(Color(NSColor.separatorColor), lineWidth: 1)
             )
+            .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 6)
+    }
+
+    private var clipboardToast: some View {
+        Group {
+            if appState.showClipboardToast {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.on.clipboard")
+                    Text("Copied to clipboard — paste with Cmd+V")
+                        .font(.caption)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color.primary.opacity(0.12))
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.easeOut(duration: 0.2), value: appState.showClipboardToast)
+            }
+        }
     }
 
     private var indicatorColor: Color {
@@ -197,17 +222,14 @@ struct TranscriptionOverlayView: View {
         }
     }
 
-    private var displayText: String {
-        if appState.currentTranscription.isEmpty {
-            switch appState.recordingState {
-            case .recording:
-                return "Listening..."
-            case .processing:
-                return "Processing your speech..."
-            case .idle:
-                return "Ready"
-            }
+    private var statusText: String {
+        switch appState.recordingState {
+        case .recording:
+            return "Listening..."
+        case .processing:
+            return "Transcribing your speech..."
+        case .idle:
+            return ""
         }
-        return appState.currentTranscription
     }
 }

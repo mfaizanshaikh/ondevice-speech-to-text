@@ -159,8 +159,6 @@ class StatusBarController: ObservableObject {
         let result = await whisperManager.stopRecording()
         appState.currentTranscription = result.text
 
-        hideOverlay()
-
         print("[StatusBarController] Transcription result: '\(result.text)', isEmpty: \(result.isEmpty)")
 
         if !result.isEmpty {
@@ -169,9 +167,18 @@ class StatusBarController: ObservableObject {
             print("[StatusBarController] Text insertion result: \(inserted)")
             if !inserted {
                 showNotification(title: "Text Copied", body: "Text has been copied to clipboard. Paste with Cmd+V.")
+                appState.showClipboardToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                    guard let self = self else { return }
+                    self.appState.showClipboardToast = false
+                    self.hideOverlay()
+                }
+            } else {
+                hideOverlay()
             }
         } else {
             print("[StatusBarController] Empty transcription, nothing to insert")
+            hideOverlay()
         }
 
         appState.recordingState = .idle

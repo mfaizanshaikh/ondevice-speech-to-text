@@ -76,6 +76,7 @@ class AppState: ObservableObject {
     @Published var showOverlay: Bool = false
     @Published var showSettings: Bool = false
     @Published var showOnboarding: Bool = false
+    @Published var showClipboardToast: Bool = false
 
     @AppStorage(Constants.UserDefaults.selectedModel)
     var selectedModel: String = Constants.WhisperModel.defaultModel
