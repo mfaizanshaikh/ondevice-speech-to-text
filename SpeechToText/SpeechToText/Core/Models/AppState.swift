@@ -27,8 +27,8 @@ enum ModelState: Equatable {
         switch self {
         case .notLoaded:
             return "Model not loaded"
-        case .downloading(let progress):
-            return "Downloading... \(Int(progress * 100))%"
+        case .downloading:
+            return "Loading..."
         case .loading:
             return "Loading model..."
         case .loadingFromCache:
