@@ -397,6 +397,11 @@ class WhisperManager: ObservableObject {
             return TranscriptionResult(text: "", isFinal: true)
         }
 
+        guard durationSeconds >= 2.0 else {
+            logger.info("Recording too short (\(String(format: "%.2f", durationSeconds))s < 2.0s), skipping transcription")
+            return TranscriptionResult(text: "", isFinal: true, tooShort: true)
+        }
+
         let result = await transcribeAudio(buffersCopy)
         logger.info("Transcription result: '\(result.text)'")
         currentTranscription = result.text

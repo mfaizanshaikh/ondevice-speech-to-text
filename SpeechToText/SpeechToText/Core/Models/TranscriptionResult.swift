@@ -8,6 +8,7 @@ struct TranscriptionResult: Identifiable, Equatable {
     let timestamp: Date
     let duration: TimeInterval?
     let isFinal: Bool
+    let tooShort: Bool
 
     init(
         id: UUID = UUID(),
@@ -16,7 +17,8 @@ struct TranscriptionResult: Identifiable, Equatable {
         confidence: Double? = nil,
         timestamp: Date = Date(),
         duration: TimeInterval? = nil,
-        isFinal: Bool = true
+        isFinal: Bool = true,
+        tooShort: Bool = false
     ) {
         self.id = id
         self.text = text
@@ -25,6 +27,7 @@ struct TranscriptionResult: Identifiable, Equatable {
         self.timestamp = timestamp
         self.duration = duration
         self.isFinal = isFinal
+        self.tooShort = tooShort
     }
 
     var trimmedText: String {

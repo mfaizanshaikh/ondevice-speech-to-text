@@ -188,9 +188,12 @@ class StatusBarController: ObservableObject {
         let result = await whisperManager.stopRecording()
         appState.currentTranscription = result.text
 
-        logger.info("Transcription result: '\(result.text)', isEmpty: \(result.isEmpty)")
+        logger.info("Transcription result: '\(result.text)', isEmpty: \(result.isEmpty), tooShort: \(result.tooShort)")
 
-        if !result.isEmpty {
+        if result.tooShort {
+            hideOverlay()
+            showRecordingTooShortAlert()
+        } else if !result.isEmpty {
             let inserted = await textInsertionService.insertText(result.text)
             logger.info("Text insertion result: \(inserted)")
             if !inserted {
@@ -335,6 +338,15 @@ class StatusBarController: ObservableObject {
                 showModelDownloadWindow()
             }
         }
+    }
+
+    private func showRecordingTooShortAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Recording Too Short"
+        alert.informativeText = "Please hold the hotkey for at least 2 seconds while speaking."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     private func showMicrophoneAlert() {
