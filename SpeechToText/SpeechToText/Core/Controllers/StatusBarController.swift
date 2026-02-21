@@ -2,6 +2,9 @@ import Foundation
 import AppKit
 import SwiftUI
 import UserNotifications
+import os.log
+
+private let logger = Logger(subsystem: "com.mfaizanshaikh.speechtotext", category: "StatusBarController")
 
 @MainActor
 class StatusBarController: ObservableObject {
@@ -11,6 +14,7 @@ class StatusBarController: ObservableObject {
     private var menu: NSMenu?
     private var overlayWindow: NSWindow?
     private var settingsWindow: NSWindow?
+    private var modelDownloadWindow: NSWindow?
 
     private let appState = AppState.shared
     private let whisperManager = WhisperManager.shared
@@ -34,10 +38,10 @@ class StatusBarController: ObservableObject {
     private func requestNotificationAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
             if let error = error {
-                print("Error requesting notification authorization: \(error.localizedDescription)")
+                logger.error("Error requesting notification authorization: \(error.localizedDescription)")
             }
             if !granted {
-                print("Notification authorization not granted")
+                logger.info("Notification authorization not granted")
             }
         }
     }
@@ -46,8 +50,12 @@ class StatusBarController: ObservableObject {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "mic", accessibilityDescription: "Offline Speech to Text")
+            let image = NSImage(systemSymbolName: "mic", accessibilityDescription: "Offline Speech to Text")
+            button.image = image
             button.image?.size = NSSize(width: Constants.UI.statusBarIconSize, height: Constants.UI.statusBarIconSize)
+            if image == nil {
+                button.title = "STT"
+            }
             button.action = #selector(statusBarButtonClicked)
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -69,6 +77,13 @@ class StatusBarController: ObservableObject {
         recordItem.target = self
         recordItem.tag = 101
         menu?.addItem(recordItem)
+
+        // Dynamic action item (retry/download) - hidden by default
+        let actionItem = NSMenuItem(title: "Download Model", action: #selector(retryModelDownload), keyEquivalent: "")
+        actionItem.target = self
+        actionItem.tag = 102
+        actionItem.isHidden = true
+        menu?.addItem(actionItem)
 
         menu?.addItem(NSMenuItem.separator())
 
@@ -98,6 +113,28 @@ class StatusBarController: ObservableObject {
         if let recordItem = menu?.item(withTag: 101) {
             recordItem.title = appState.isRecording ? "Stop Recording" : "Start Recording"
             recordItem.isEnabled = appState.modelState.isReady || appState.isRecording
+        }
+
+        // Show/hide the action item based on model state
+        if let actionItem = menu?.item(withTag: 102) {
+            switch appState.modelState {
+            case .error:
+                actionItem.title = "Retry Model Download"
+                actionItem.isHidden = false
+            case .notLoaded:
+                actionItem.title = "Download Model"
+                actionItem.isHidden = false
+            default:
+                actionItem.isHidden = true
+            }
+        }
+    }
+
+    @objc private func retryModelDownload() {
+        logger.info("User triggered model download/retry from menu")
+        appState.skippedModelDownload = false
+        Task {
+            await whisperManager.loadModel(appState.selectedModel)
         }
     }
 
@@ -129,8 +166,16 @@ class StatusBarController: ObservableObject {
 
     private func startRecording() async {
         guard appState.modelState.isReady else {
-            print("Model not ready: \(appState.modelState)")
-            showNotification(title: "Model Not Ready", body: "Please wait for the model to load.")
+            logger.warning("Model not ready: \(self.appState.modelState.statusText)")
+            if case .error = appState.modelState {
+                showNotification(title: "Model Error", body: "Opening model download to retry.")
+                showModelDownloadWindow()
+            } else if case .notLoaded = appState.modelState {
+                showNotification(title: "Model Required", body: "Opening model download.")
+                showModelDownloadWindow()
+            } else {
+                showNotification(title: "Model Loading", body: "Please wait for the model to finish loading.")
+            }
             return
         }
 
@@ -159,12 +204,11 @@ class StatusBarController: ObservableObject {
         let result = await whisperManager.stopRecording()
         appState.currentTranscription = result.text
 
-        print("[StatusBarController] Transcription result: '\(result.text)', isEmpty: \(result.isEmpty)")
+        logger.info("Transcription result: '\(result.text)', isEmpty: \(result.isEmpty)")
 
         if !result.isEmpty {
-            print("[StatusBarController] Attempting to insert text...")
             let inserted = await textInsertionService.insertText(result.text)
-            print("[StatusBarController] Text insertion result: \(inserted)")
+            logger.info("Text insertion result: \(inserted)")
             if !inserted {
                 showNotification(title: "Text Copied", body: "Text has been copied to clipboard. Paste with Cmd+V.")
                 appState.showClipboardToast = true
@@ -177,7 +221,7 @@ class StatusBarController: ObservableObject {
                 hideOverlay()
             }
         } else {
-            print("[StatusBarController] Empty transcription, nothing to insert")
+            logger.info("Empty transcription, nothing to insert")
             hideOverlay()
         }
 
@@ -263,14 +307,50 @@ class StatusBarController: ObservableObject {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    /// Show a standalone model download window (used post-onboarding when model isn't ready)
+    func showModelDownloadWindow() {
+        if modelDownloadWindow == nil {
+            let downloadView = ModelDownloadView(onComplete: { [weak self] in
+                self?.modelDownloadWindow?.close()
+                self?.modelDownloadWindow = nil
+            }, showSkip: false)
+            let hostingView = NSHostingView(rootView: downloadView)
+
+            modelDownloadWindow = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 500, height: 420),
+                styleMask: [.titled, .closable],
+                backing: .buffered,
+                defer: false
+            )
+
+            modelDownloadWindow?.contentView = hostingView
+            modelDownloadWindow?.title = "Download Speech Recognition Model"
+            modelDownloadWindow?.center()
+            modelDownloadWindow?.isReleasedWhenClosed = false
+        }
+
+        modelDownloadWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
     @objc private func quit() {
         whisperManager.cancelRecording()
         NSApp.terminate(nil)
     }
 
     private func loadModelIfNeeded() async {
+        // Don't auto-load during onboarding - user will manually trigger download
+        guard appState.hasCompletedOnboarding else { return }
+
         if !appState.modelState.isReady && !appState.skippedModelDownload {
+            logger.info("Auto-loading model '\(self.appState.selectedModel)' on launch")
             await whisperManager.loadModel(appState.selectedModel)
+
+            // If model failed to load, show recovery UI
+            if !appState.modelState.isReady {
+                logger.warning("Model failed to load on startup, showing recovery UI")
+                showModelDownloadWindow()
+            }
         }
     }
 
@@ -279,16 +359,16 @@ class StatusBarController: ObservableObject {
         content.title = title
         content.body = body
         content.sound = .default
-        
+
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
             content: content,
             trigger: nil // nil trigger means deliver immediately
         )
-        
+
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("Error delivering notification: \(error.localizedDescription)")
+                logger.error("Error delivering notification: \(error.localizedDescription)")
             }
         }
     }

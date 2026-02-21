@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A1000001001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000 /* AppDelegate.swift */; };
+		A1000018001 /* AppMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000018000 /* AppMain.swift */; };
 		A1000002001 /* WhisperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002000 /* WhisperManager.swift */; };
 		A1000003001 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003000 /* HotkeyManager.swift */; };
 		A1000004001 /* TextInsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004000 /* TextInsertionService.swift */; };
@@ -22,7 +23,6 @@
 		A1000014001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000014000 /* Constants.swift */; };
 		A1000015001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000015000 /* Assets.xcassets */; };
 		A1000017001 /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000017000 /* AudioLevelView.swift */; };
-		B387012F2F2341B10018C319 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B387012E2F2341B10018C319 /* main.swift */; };
 		B3B4081F2F22BF9000A0727D /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = B3B4081E2F22BF9000A0727D /* WhisperKit */; };
 		B3B408222F22BFBD00A0727D /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = B3B408212F22BFBD00A0727D /* HotKey */; };
 /* End PBXBuildFile section */
@@ -46,7 +46,7 @@
 		A1000015000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1000016000 /* SpeechToText.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpeechToText.entitlements; sourceTree = "<group>"; };
 		A1000017000 /* AudioLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelView.swift; sourceTree = "<group>"; };
-		B387012E2F2341B10018C319 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		A1000018000 /* AppMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +94,7 @@
 		A1GRP00010 /* Application */ = {
 			isa = PBXGroup;
 			children = (
-				B387012E2F2341B10018C319 /* main.swift */,
+				A1000018000 /* AppMain.swift */,
 				A1000001000 /* AppDelegate.swift */,
 				A1000001100 /* Info.plist */,
 			);
@@ -240,6 +240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000018001 /* AppMain.swift in Sources */,
 				A1000001001 /* AppDelegate.swift in Sources */,
 				A1000002001 /* WhisperManager.swift in Sources */,
 				A1000003001 /* HotkeyManager.swift in Sources */,
@@ -252,7 +253,6 @@
 				A1000010001 /* TranscriptionOverlayView.swift in Sources */,
 				A1000011001 /* SettingsView.swift in Sources */,
 				A1000017001 /* AudioLevelView.swift in Sources */,
-				B387012F2F2341B10018C319 /* main.swift in Sources */,
 				A1000012001 /* ModelDownloadView.swift in Sources */,
 				A1000014001 /* Constants.swift in Sources */,
 			);
@@ -388,6 +388,7 @@
 		A1BLDCFG003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -420,6 +421,7 @@
 		A1BLDCFG004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;

@@ -204,7 +204,7 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text("\u{00A9} 2026 Faizan Shaikh. All rights reserved.")
+                Text("\u{00A9} 2026. All rights reserved.")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }

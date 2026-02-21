@@ -47,22 +47,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         permissionsManager.checkAllPermissions()
         logger.info("hasCompletedOnboarding: \(appState.hasCompletedOnboarding)")
 
+        // Always setup status bar first
+        logger.info("Setting up status bar")
+        StatusBarController.shared.setup()
+
         if !appState.hasCompletedOnboarding {
             logger.info("Showing onboarding")
             showOnboarding()
         } else {
-            logger.info("Setting up status bar")
-            StatusBarController.shared.setup()
+            logger.info("Onboarding already completed, skipping")
         }
     }
 
     private func showOnboarding() {
-        let onboardingView = OnboardingView {
-            Task { @MainActor in
-                AppState.shared.hasCompletedOnboarding = true
-                self.onboardingWindow?.close()
-                self.onboardingWindow = nil
-                StatusBarController.shared.setup()
+        logger.info("showOnboarding called")
+        let onboardingView = OnboardingView { [weak self] in
+            logger.info("Onboarding completed callback")
+            // Update state immediately
+            AppState.shared.hasCompletedOnboarding = true
+            AppState.shared.onboardingStep = 0
+
+            // Defer window cleanup to ensure SwiftUI view cleanup completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                logger.info("Closing onboarding window")
+                self?.onboardingWindow?.close()
+                self?.onboardingWindow = nil
             }
         }
 
@@ -77,6 +86,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         onboardingWindow?.contentView = hostingView
         onboardingWindow?.title = "Welcome to Offline Speech to Text"
+        onboardingWindow?.isReleasedWhenClosed = false
         onboardingWindow?.center()
         onboardingWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -154,9 +164,14 @@ struct OnboardingView: View {
     @ObservedObject private var whisperManager = WhisperManager.shared
     @ObservedObject private var appState = AppState.shared
 
-    @State private var currentStep = 0
+    @State private var currentStep: Int
 
     let onComplete: () -> Void
+    
+    init(onComplete: @escaping () -> Void) {
+        self.onComplete = onComplete
+        _currentStep = State(initialValue: AppState.shared.onboardingStep)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -175,6 +190,9 @@ struct OnboardingView: View {
                 .padding(.bottom, 30)
         }
         .frame(width: 550, height: 500)
+        .onChange(of: currentStep) { _, newValue in
+            AppState.shared.onboardingStep = newValue
+        }
     }
 
     private var stepIndicator: some View {
@@ -245,14 +263,26 @@ struct OnboardingView: View {
                 permissionCard(
                     title: "Microphone",
                     description: "To capture your voice for transcription",
-                    isGranted: permissionsManager.microphonePermission.isGranted,
-                    action: {
+                    status: permissionsManager.microphonePermission,
+                    requestAccess: {
                         Task {
                             await permissionsManager.requestMicrophonePermission()
                         }
+                    },
+                    openSettings: {
+                        permissionsManager.openMicrophonePreferences()
                     }
                 )
             }
+
+            microphoneHelpText
+        }
+        .onAppear {
+            // Start polling for permission changes when user is on this step
+            permissionsManager.startMonitoringPermissions()
+        }
+        .onDisappear {
+            permissionsManager.stopMonitoringPermissions()
         }
     }
 
@@ -282,7 +312,6 @@ struct OnboardingView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(currentStep == 1 && !permissionsManager.microphonePermission.isGranted)
             }
         }
     }
@@ -298,11 +327,50 @@ struct OnboardingView: View {
         }
     }
 
+    private var microphoneHelpText: some View {
+        Group {
+            switch permissionsManager.microphonePermission {
+            case .denied:
+                VStack(spacing: 8) {
+                    Text("Microphone access is currently denied. macOS will not show the permission prompt again.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    VStack(spacing: 4) {
+                        Text("Tap Continue to open System Settings, then:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("1. Privacy & Security > Microphone")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("2. Turn on Offline Speech to Text")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            case .notDetermined:
+                Text("Click Allow Microphone to show the macOS permission prompt.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            case .granted:
+                Text("Microphone access granted. You can continue.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            case .unknown:
+                EmptyView()
+            }
+        }
+    }
+
     private func permissionCard(
         title: String,
         description: String,
-        isGranted: Bool,
-        action: @escaping () -> Void
+        status: PermissionsManager.PermissionStatus,
+        requestAccess: @escaping () -> Void,
+        openSettings: @escaping () -> Void
     ) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -315,15 +383,23 @@ struct OnboardingView: View {
 
             Spacer()
 
-            if isGranted {
+            if status.isGranted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
                     .foregroundColor(.green)
             } else {
-                Button("Continue") {
-                    action()
+                switch status {
+                case .denied:
+                    Button("Continue") {
+                        openSettings()
+                    }
+                    .buttonStyle(.borderedProminent)
+                default:
+                    Button("Continue") {
+                        requestAccess()
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
             }
         }
         .padding()

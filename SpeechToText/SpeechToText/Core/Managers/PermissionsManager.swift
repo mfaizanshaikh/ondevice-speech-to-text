@@ -1,12 +1,15 @@
 import Foundation
 import AVFoundation
 import AppKit
+import Combine
 
 @MainActor
 class PermissionsManager: ObservableObject {
     static let shared = PermissionsManager()
 
     @Published var microphonePermission: PermissionStatus = .unknown
+
+    private var permissionCheckTimer: Timer?
 
     enum PermissionStatus: Equatable {
         case unknown
@@ -39,6 +42,22 @@ class PermissionsManager: ObservableObject {
         @unknown default:
             microphonePermission = .unknown
         }
+    }
+
+    /// Start polling for permission changes (useful during onboarding)
+    func startMonitoringPermissions() {
+        stopMonitoringPermissions()
+        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkMicrophonePermission()
+            }
+        }
+    }
+
+    /// Stop polling for permission changes
+    func stopMonitoringPermissions() {
+        permissionCheckTimer?.invalidate()
+        permissionCheckTimer = nil
     }
 
     func requestMicrophonePermission() async -> Bool {

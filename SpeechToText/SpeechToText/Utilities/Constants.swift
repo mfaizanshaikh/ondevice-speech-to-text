@@ -41,6 +41,7 @@ enum Constants {
         static let hotkeyModifiers = "hotkeyModifiers"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let skippedModelDownload = "skippedModelDownload"
+        static let onboardingStep = "onboardingStep"
     }
 
     enum Language {
