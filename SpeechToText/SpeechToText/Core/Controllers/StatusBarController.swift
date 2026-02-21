@@ -343,7 +343,7 @@ class StatusBarController: ObservableObject {
     private func showRecordingTooShortAlert() {
         let alert = NSAlert()
         alert.messageText = "Recording Too Short"
-        alert.informativeText = "Please hold the hotkey for at least 2 seconds while speaking."
+        alert.informativeText = "Please record for at least 2 seconds."
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
         alert.runModal()
