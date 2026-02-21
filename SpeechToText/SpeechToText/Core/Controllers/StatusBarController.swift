@@ -1,7 +1,6 @@
 import Foundation
 import AppKit
 import SwiftUI
-import UserNotifications
 import os.log
 
 private let logger = Logger(subsystem: "com.mfaizanshaikh.speechtotext", category: "StatusBarController")
@@ -28,21 +27,9 @@ class StatusBarController: ObservableObject {
         createStatusItem()
         setupHotkey()
         updateStatusIcon()
-        requestNotificationAuthorization()
 
         Task {
             await loadModelIfNeeded()
-        }
-    }
-
-    private func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if let error = error {
-                logger.error("Error requesting notification authorization: \(error.localizedDescription)")
-            }
-            if !granted {
-                logger.info("Notification authorization not granted")
-            }
         }
     }
 
@@ -168,21 +155,18 @@ class StatusBarController: ObservableObject {
         guard appState.modelState.isReady else {
             logger.warning("Model not ready: \(self.appState.modelState.statusText)")
             if case .error = appState.modelState {
-                showNotification(title: "Model Error", body: "Opening model download to retry.")
                 showModelDownloadWindow()
             } else if case .notLoaded = appState.modelState {
-                showNotification(title: "Model Required", body: "Opening model download.")
                 showModelDownloadWindow()
-            } else {
-                showNotification(title: "Model Loading", body: "Please wait for the model to finish loading.")
             }
+            // If model is still loading, do nothing — status bar icon already reflects this
             return
         }
 
         guard permissionsManager.microphonePermission.isGranted else {
             let granted = await permissionsManager.requestMicrophonePermission()
             guard granted else {
-                showNotification(title: "Microphone Access Required", body: "Please grant microphone access in System Settings.")
+                showMicrophoneAlert()
                 return
             }
             // Permission was just granted, continue
@@ -210,7 +194,6 @@ class StatusBarController: ObservableObject {
             let inserted = await textInsertionService.insertText(result.text)
             logger.info("Text insertion result: \(inserted)")
             if !inserted {
-                showNotification(title: "Text Copied", body: "Text has been copied to clipboard. Paste with Cmd+V.")
                 appState.showClipboardToast = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                     guard let self = self else { return }
@@ -354,22 +337,16 @@ class StatusBarController: ObservableObject {
         }
     }
 
-    private func showNotification(title: String, body: String) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
+    private func showMicrophoneAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Microphone Access Required"
+        alert.informativeText = "Offline Speech to Text needs microphone access to record speech.\n\nGo to System Settings > Privacy & Security > Microphone and enable access for this app."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Cancel")
 
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: nil // nil trigger means deliver immediately
-        )
-
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                logger.error("Error delivering notification: \(error.localizedDescription)")
-            }
+        if alert.runModal() == .alertFirstButtonReturn {
+            permissionsManager.openMicrophonePreferences()
         }
     }
 }
