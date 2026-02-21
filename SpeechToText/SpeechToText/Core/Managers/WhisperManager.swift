@@ -310,7 +310,13 @@ class WhisperManager: ObservableObject {
             }
 
             var error: NSError?
+            var inputProvided = false
             let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+                if inputProvided {
+                    outStatus.pointee = .noDataNow
+                    return nil
+                }
+                inputProvided = true
                 outStatus.pointee = .haveData
                 return buffer
             }
@@ -413,19 +419,29 @@ class WhisperManager: ObservableObject {
             return TranscriptionResult(text: "", isFinal: true)
         }
 
+        // Energy-based silence detection: compute RMS and skip if audio is essentially silent.
+        // Whisper hallucinates common words (e.g. "you") when given near-silent audio.
+        let sumOfSquares = samples.reduce(0.0) { $0 + Double($1) * Double($1) }
+        let rms = sqrt(sumOfSquares / Double(samples.count))
+        let silenceThreshold: Double = 0.001  // ~-60 dBFS
+        if rms < silenceThreshold {
+            logger.info("Audio RMS \(rms) below silence threshold — skipping transcription")
+            return TranscriptionResult(text: "", isFinal: true)
+        }
+
         do {
             let language = AppState.shared.selectedLanguage
             let languageToUse = language == "auto" ? nil : language
-            logger.info("Using language: \(languageToUse ?? "auto-detect")")
+            logger.info("Using language: \(languageToUse ?? "auto-detect"), audio RMS: \(rms)")
 
             let options = DecodingOptions(
-                verbose: true,
+                verbose: false,
                 task: .transcribe,
                 language: languageToUse,
                 temperatureFallbackCount: 3,
                 sampleLength: 224,
-                usePrefillPrompt: true,
-                usePrefillCache: true,
+                usePrefillPrompt: false,
+                usePrefillCache: false,
                 skipSpecialTokens: true,
                 withoutTimestamps: true
             )

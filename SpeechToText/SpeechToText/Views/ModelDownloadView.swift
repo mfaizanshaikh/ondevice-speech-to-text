@@ -41,13 +41,13 @@ struct ModelDownloadView: View {
     // MARK: - Auto Download
 
     private func autoStartDownloadIfNeeded() {
-        // Auto-start download if model isn't ready and isn't already loading
+        // Only auto-load if the model is already cached on disk (no download needed)
+        // For new downloads, the user must explicitly tap "Download Model" to consent
         guard !whisperManager.modelState.isReady,
               !whisperManager.modelState.isLoading,
               !isErrorState else { return }
 
-        // Only auto-start if we can (network available or cached on disk)
-        guard whisperManager.isNetworkAvailable || whisperManager.modelExistsOnDisk(appState.selectedModel) else { return }
+        guard whisperManager.modelExistsOnDisk(appState.selectedModel) else { return }
 
         Task {
             await whisperManager.loadModel(appState.selectedModel)
