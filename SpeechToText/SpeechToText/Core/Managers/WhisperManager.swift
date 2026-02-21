@@ -126,8 +126,8 @@ class WhisperManager: ObservableObject {
 
         if cachedOnDisk {
             // Model files exist locally - just need to load into memory
-            modelState = .loading
-            AppState.shared.modelState = .loading
+            modelState = .loadingFromCache
+            AppState.shared.modelState = .loadingFromCache
             logger.info("Loading cached model '\(model)' from disk (attempt \(attempt + 1)/\(self.maxRetries + 1))")
         } else {
             // Need to download - check network first

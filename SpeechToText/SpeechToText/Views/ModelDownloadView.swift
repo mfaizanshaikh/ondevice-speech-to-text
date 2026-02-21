@@ -185,6 +185,19 @@ struct ModelDownloadView: View {
                 Text("This may take several minutes for larger models.")
                     .font(.caption2)
                     .foregroundColor(.secondary)
+            } else if case .loadingFromCache = whisperManager.modelState {
+                ProgressView()
+                    .controlSize(.small)
+                HStack(spacing: 4) {
+                    Text("Loading model from cache...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    if !elapsedTimeText.isEmpty {
+                        Text("(\(elapsedTimeText) elapsed)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             } else if case .loading = whisperManager.modelState {
                 ProgressView()
                     .controlSize(.small)

@@ -230,7 +230,7 @@ struct SettingsView: View {
         switch whisperManager.modelState {
         case .ready:
             return .green
-        case .downloading, .loading:
+        case .downloading, .loading, .loadingFromCache:
             return .orange
         case .error:
             return .red

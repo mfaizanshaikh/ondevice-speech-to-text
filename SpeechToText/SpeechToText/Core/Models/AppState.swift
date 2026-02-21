@@ -5,6 +5,7 @@ enum ModelState: Equatable {
     case notLoaded
     case downloading(progress: Double)
     case loading
+    case loadingFromCache
     case ready
     case error(String)
 
@@ -15,7 +16,7 @@ enum ModelState: Equatable {
 
     var isLoading: Bool {
         switch self {
-        case .downloading, .loading:
+        case .downloading, .loading, .loadingFromCache:
             return true
         default:
             return false
@@ -30,6 +31,8 @@ enum ModelState: Equatable {
             return "Downloading... \(Int(progress * 100))%"
         case .loading:
             return "Loading model..."
+        case .loadingFromCache:
+            return "Loading from cache..."
         case .ready:
             return "Ready"
         case .error(let message):
