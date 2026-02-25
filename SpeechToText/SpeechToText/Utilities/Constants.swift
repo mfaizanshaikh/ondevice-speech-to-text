@@ -42,6 +42,7 @@ enum Constants {
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let skippedModelDownload = "skippedModelDownload"
         static let onboardingStep = "onboardingStep"
+        static let autoCloseOverlay = "autoCloseOverlay"
     }
 
     enum Language {

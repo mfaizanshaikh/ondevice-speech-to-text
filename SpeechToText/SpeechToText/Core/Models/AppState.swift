@@ -80,6 +80,7 @@ class AppState: ObservableObject {
     @Published var showSettings: Bool = false
     @Published var showOnboarding: Bool = false
     @Published var showClipboardToast: Bool = false
+    @Published var lastTranscriptionWasEmpty: Bool = false
 
     @AppStorage(Constants.UserDefaults.selectedModel)
     var selectedModel: String = Constants.WhisperModel.defaultModel
@@ -95,6 +96,9 @@ class AppState: ObservableObject {
 
     @AppStorage(Constants.UserDefaults.skippedModelDownload)
     var skippedModelDownload: Bool = false
+
+    @AppStorage(Constants.UserDefaults.autoCloseOverlay)
+    var autoCloseOverlay: Bool = false
 
     @AppStorage(Constants.UserDefaults.onboardingStep)
     var onboardingStep: Int = 0

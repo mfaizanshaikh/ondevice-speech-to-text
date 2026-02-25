@@ -175,6 +175,7 @@ class StatusBarController: ObservableObject {
 
         appState.recordingState = .recording
         appState.currentTranscription = ""
+        appState.lastTranscriptionWasEmpty = false
         updateStatusIcon()
         showOverlay()
 
@@ -191,24 +192,19 @@ class StatusBarController: ObservableObject {
         logger.info("Transcription result: '\(result.text)', isEmpty: \(result.isEmpty), tooShort: \(result.tooShort)")
 
         if result.tooShort {
-            hideOverlay()
             showRecordingTooShortAlert()
         } else if !result.isEmpty {
             let inserted = await textInsertionService.insertText(result.text)
             logger.info("Text insertion result: \(inserted)")
             if !inserted {
                 appState.showClipboardToast = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-                    guard let self = self else { return }
-                    self.appState.showClipboardToast = false
-                    self.hideOverlay()
-                }
-            } else {
-                hideOverlay()
+                // Toast stays visible until the overlay is closed
             }
+            // Overlay stays open after transcription
         } else {
             logger.info("Empty transcription, nothing to insert")
-            hideOverlay()
+            appState.lastTranscriptionWasEmpty = true
+            // Overlay stays open to show "didn't speak" message
         }
 
         appState.recordingState = .idle
@@ -269,6 +265,11 @@ class StatusBarController: ObservableObject {
     private func hideOverlay() {
         overlayWindow?.orderOut(nil)
         appState.showOverlay = false
+        appState.showClipboardToast = false
+    }
+
+    func closeOverlay() {
+        hideOverlay()
     }
 
     @objc func openSettings() {

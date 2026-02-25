@@ -3,13 +3,19 @@ import SwiftUI
 struct TranscriptionOverlayView: View {
     @ObservedObject private var appState = AppState.shared
     @ObservedObject private var whisperManager = WhisperManager.shared
+    @AppStorage(Constants.UserDefaults.autoCloseOverlay) private var autoCloseOverlay: Bool = false
     @State private var elapsedSeconds: Int = 0
-    @State private var timer: Timer?
+    @State private var recordingTimer: Timer?
+    @State private var autoCloseCountdown: Int = 0
+    @State private var autoCloseTimer: Timer?
     @State private var isVisible: Bool = false
 
     var body: some View {
         VStack(spacing: 12) {
             headerView
+                .overlay {
+                    clipboardToast
+                }
 
             transcriptionView
 
@@ -18,44 +24,85 @@ struct TranscriptionOverlayView: View {
         .padding(16)
         .frame(width: Constants.UI.overlayWidth, height: Constants.UI.overlayHeight)
         .background(backgroundView)
-        .overlay {
-            clipboardToast
-        }
         .scaleEffect(isVisible ? 1.0 : 0.9)
         .opacity(isVisible ? 1.0 : 0.0)
         .animation(.spring(duration: 0.25, bounce: 0.2), value: isVisible)
         .onAppear {
-            startTimer()
+            startRecordingTimer()
             withAnimation {
                 isVisible = true
             }
         }
         .onDisappear {
-            stopTimer()
+            stopRecordingTimer()
+            stopAutoCloseTimer()
             isVisible = false
         }
         .onChange(of: appState.recordingState) { _, newState in
             if newState == .recording {
                 elapsedSeconds = 0
-                startTimer()
+                startRecordingTimer()
+                stopAutoCloseTimer()
+                appState.showClipboardToast = false
+            } else if newState == .idle {
+                stopRecordingTimer()
+                if autoCloseOverlay && !appState.lastTranscriptionWasEmpty {
+                    startAutoCloseCountdown()
+                }
             } else {
-                stopTimer()
+                stopRecordingTimer()
+            }
+        }
+        .onChange(of: autoCloseOverlay) { _, isOn in
+            if isOn {
+                if appState.recordingState == .idle && !appState.lastTranscriptionWasEmpty {
+                    startAutoCloseCountdown()
+                }
+            } else {
+                stopAutoCloseTimer()
             }
         }
     }
 
-    private func startTimer() {
-        stopTimer()
+    // MARK: - Timers
+
+    private func startRecordingTimer() {
+        stopRecordingTimer()
         elapsedSeconds = 0
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             elapsedSeconds += 1
         }
     }
 
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
+    private func stopRecordingTimer() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
     }
+
+    private func startAutoCloseCountdown() {
+        stopAutoCloseTimer()
+        autoCloseCountdown = 6
+        autoCloseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            DispatchQueue.main.async {
+                if autoCloseCountdown > 1 {
+                    autoCloseCountdown -= 1
+                } else {
+                    stopAutoCloseTimer()
+                    Task { @MainActor in
+                        StatusBarController.shared.closeOverlay()
+                    }
+                }
+            }
+        }
+    }
+
+    private func stopAutoCloseTimer() {
+        autoCloseTimer?.invalidate()
+        autoCloseTimer = nil
+        autoCloseCountdown = 0
+    }
+
+    // MARK: - Subviews
 
     private var formattedElapsedTime: String {
         let minutes = elapsedSeconds / 60
@@ -65,11 +112,11 @@ struct TranscriptionOverlayView: View {
 
     private var headerView: some View {
         HStack {
-            recordingIndicator
-
-            Text(appState.recordingState.statusText)
-                .font(.headline)
-                .foregroundColor(.primary)
+            if appState.recordingState != .idle {
+                Text(appState.recordingState.statusText)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+            }
 
             if appState.recordingState == .recording {
                 Text(formattedElapsedTime)
@@ -85,20 +132,49 @@ struct TranscriptionOverlayView: View {
                     StatusBarController.shared.toggleRecording()
                 }) {
                     Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
                         .foregroundColor(.green)
                 }
                 .buttonStyle(.plain)
                 .help("Stop and transcribe")
             }
 
+            if appState.recordingState == .idle {
+                Button(action: {
+                    stopAutoCloseTimer()
+                    StatusBarController.shared.toggleRecording()
+                }) {
+                    Image(systemName: "mic.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                }
+                .buttonStyle(.plain)
+                .help("Start new recording")
+            }
+
             Button(action: {
-                StatusBarController.shared.cancelRecording()
+                if appState.recordingState == .idle {
+                    stopAutoCloseTimer()
+                    StatusBarController.shared.closeOverlay()
+                } else {
+                    StatusBarController.shared.cancelRecording()
+                }
             }) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
+                if autoCloseCountdown > 0 {
+                    Text("\(autoCloseCountdown)")
+                        .font(.system(size: 11).monospacedDigit())
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .frame(width: 20, height: 20)
+                        .background(Circle().fill(Color.primary.opacity(0.1)))
+                } else {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.secondary)
+                }
             }
             .buttonStyle(.plain)
-            .help("Cancel recording")
+            .help(appState.recordingState == .idle ? "Close" : "Cancel recording")
         }
     }
 
@@ -121,18 +197,35 @@ struct TranscriptionOverlayView: View {
     }
 
     private var transcriptionView: some View {
-        ScrollView {
+        Group {
             if appState.recordingState == .recording {
                 audioVisualizationView
-            } else {
-                Text(statusText)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if appState.recordingState == .processing {
+                Text("Transcribing your speech...")
                     .font(.body)
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            } else {
+                // idle — only this state needs scrolling for long text
+                ScrollView {
+                    if appState.lastTranscriptionWasEmpty {
+                        Text("You didn't speak, so there's nothing to transcribe.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else if !appState.currentTranscription.isEmpty {
+                        Text(appState.currentTranscription)
+                            .font(.body)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .scrollIndicators(.automatic)
+                .frame(maxHeight: .infinity)
             }
         }
-        .frame(maxHeight: .infinity)
     }
 
     private var audioVisualizationView: some View {
@@ -147,12 +240,11 @@ struct TranscriptionOverlayView: View {
     }
 
     private var footerView: some View {
-        HStack {
+        HStack(spacing: 6) {
             Text(HotkeyManager.shared.hotkeyDescription)
                 .font(.caption)
                 .foregroundColor(.secondary)
-
-            Text("to stop")
+            Text(appState.recordingState == .recording ? "to stop" : "to record")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
@@ -163,7 +255,21 @@ struct TranscriptionOverlayView: View {
                     .scaleEffect(0.7)
             }
 
+            autoCloseToggle
+
             languageIndicator
+        }
+    }
+
+    private var autoCloseToggle: some View {
+        HStack(spacing: 4) {
+            Text("Auto-close")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Toggle("", isOn: $autoCloseOverlay)
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                .labelsHidden()
         }
     }
 
@@ -193,19 +299,25 @@ struct TranscriptionOverlayView: View {
     private var clipboardToast: some View {
         Group {
             if appState.showClipboardToast {
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Image(systemName: "doc.on.clipboard")
+                        .font(.caption)
                     Text("Copied to clipboard — paste with Cmd+V")
                         .font(.caption)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
                 .background(
-                    Capsule()
-                        .fill(Color.primary.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.primary.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+                        )
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .transition(.opacity)
                 .animation(.easeOut(duration: 0.2), value: appState.showClipboardToast)
             }
         }
@@ -219,17 +331,6 @@ struct TranscriptionOverlayView: View {
             return .orange
         case .idle:
             return .green
-        }
-    }
-
-    private var statusText: String {
-        switch appState.recordingState {
-        case .recording:
-            return "Listening..."
-        case .processing:
-            return "Transcribing your speech..."
-        case .idle:
-            return ""
         }
     }
 }

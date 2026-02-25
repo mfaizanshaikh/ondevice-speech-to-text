@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		A1000001001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000 /* AppDelegate.swift */; };
-		A1000018001 /* AppMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000018000 /* AppMain.swift */; };
 		A1000002001 /* WhisperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002000 /* WhisperManager.swift */; };
 		A1000003001 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003000 /* HotkeyManager.swift */; };
 		A1000004001 /* TextInsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004000 /* TextInsertionService.swift */; };
@@ -23,6 +22,7 @@
 		A1000014001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000014000 /* Constants.swift */; };
 		A1000015001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000015000 /* Assets.xcassets */; };
 		A1000017001 /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000017000 /* AudioLevelView.swift */; };
+		A1000018001 /* AppMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000018000 /* AppMain.swift */; };
 		B3B4081F2F22BF9000A0727D /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = B3B4081E2F22BF9000A0727D /* WhisperKit */; };
 		B3B408222F22BFBD00A0727D /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = B3B408212F22BFBD00A0727D /* HotKey */; };
 /* End PBXBuildFile section */
